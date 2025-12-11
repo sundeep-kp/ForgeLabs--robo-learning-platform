@@ -1,0 +1,46 @@
+<article>
+    <h2>Understanding the Servo Motor</h2>
+    
+    <p>A servo motor is a rotary actuator that allows for precise control of angular position. Unlike a standard DC motor, the servo contains a closed-loop system including a motor, a gearbox, and a control circuit. It accepts a specific signal—Pulse Width Modulation (PWM)—to set its shaft angle, typically between 0° and 180°.</p>
+    
+    <h3>Hardware and Wiring Diagram</h3>
+    <p>Servos typically have three wires: Ground (Black/Brown), Power (VCC, Red), and Signal (Yellow/Orange). For high-power servos, **never** power them directly from the Arduino's 5V pin; use an external power supply.</p>
+    
+
+    <h3>Code Example (Arduino C++)</h3>
+    <pre><code>
+#include &lt;Servo.h&gt;
+
+Servo myServo; 
+int servoPin = 9;
+
+void setup() {
+    myServo.attach(servoPin); // Attaches the servo on pin 9 to the servo object
+    myServo.write(90);        // Center the servo at 90 degrees
+}
+
+void loop() {
+    // Sweep from 0 to 180 degrees
+    for (int angle = 0; angle <= 180; angle += 1) {
+        myServo.write(angle);
+        delay(15); 
+    }
+    // ... more code
+}
+    </code></pre>
+
+    <section class="failure-modes">
+        <h3>🚨 Ways to Break This Component (Failure Modes)</h3>
+        <ul>
+            <li><strong>The Twitch/Buzz:</strong> This often happens if the servo is overloaded (mechanically blocked) or if the power supply is insufficient. The motor draws too much current, causing the control circuit to fail. **How to Avoid:** Use an external power supply with sufficient current capacity.</li>
+            <li><strong>Thermal Shutdown:</strong> Continuous stalling or high load can cause the internal motor windings to overheat. **Debugging:** Feel the servo casing; if it's hot, reduce the load or duty cycle.</li>
+            <li><strong>Signal Jitter:</strong> Caused by poor grounding or long, unshielded signal wires picking up noise. **Debugging:** Check all ground connections (Arduino GND to Servo GND to Power Supply GND).</li>
+        </ul>
+    </section>
+
+    <p class="playground-link">
+        🔗 **Visualize and Debug:** Go to the 
+        <a href="/playground.html?component=servo">Servo Playground</a> 
+        to visualize the PWM signal and control the angle interactively.
+    </p>
+</article>  

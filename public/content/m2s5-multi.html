@@ -1,0 +1,84 @@
+<article>
+    <header>
+        <h2>Multi-Servo Control (2–4 DOF)</h2>
+    </header>
+
+    <section>
+        <p>To create the remaining joints (shoulder, elbow, wrist), you need to control multiple servos simultaneously. This requires managing multiple PWM outputs and coordinating their timing in your Arduino code.</p>
+        
+        <h3>Diagram: Multi-Servo Wiring</h3>
+        <p>Always ensure all servos share a **common ground (GND)** with the Arduino, even if they draw power from an external source.</p>
+        
+    </section>
+
+    <section>
+        <h3>🧠 Section 1 — Core Concept: Servo Timing</h3>
+        <p>The Arduino Servo library handles the timing of multiple PWM pulses seamlessly in the background. You simply declare a separate servo object for each joint:</p>
+        <ul>
+            <li>`Servo baseJoint;`</li>
+            <li>`Servo shoulderJoint;`</li>
+            <li>`Servo elbowJoint;`</li>
+        </ul>
+        <p>Using `delay()` in your main loop will halt all movement and calculation. In real automation, we must use non-blocking timing (like the `millis()` function) for complex coordination.</p>
+    </section>
+
+    <section>
+        <h3>🔧 Section 2 — Hands-On: Adding More Joints</h3>
+        <p>For your full robotic arm prototype, you will likely need to control at least 4 joints for a basic reach and grab function.</p>
+        <ol>
+            <li>Wire the shoulder servo signal to **Pin 11**.</li>
+            <li>Wire the elbow servo signal to **Pin 12**.</li>
+            <li>Ensure the **external power supply** can handle the current draw of all servos moving at once (stall current can be high!).</li>
+        </ol>
+    </section>
+
+    <section>
+        <h3>💻 Section 3 — Arduino Code Example (Coordinated Move)</h3>
+        <p>This code moves all three joints simultaneously to a target position.</p>
+        <pre><code>
+#include &lt;Servo.h&gt;
+Servo base, shoulder, elbow;
+
+void setup() {
+  base.attach(10);
+  shoulder.attach(11);
+  elbow.attach(12);
+  // Start position
+  base.write(90);
+  shoulder.write(90);
+  elbow.write(90);
+  delay(1000);
+}
+
+void loop() {
+  // Move to the "open" position
+  base.write(150);
+  shoulder.write(30);
+  elbow.write(120);
+  delay(2000);
+
+  // Move to the "closed" position
+  base.write(30);
+  shoulder.write(150);
+  elbow.write(60);
+  delay(2000);
+}
+        </code></pre>
+    </section>
+
+    <section class="mini-task">
+        <h3>🎯 Mini-Task: Testing Coordinated Motion</h3>
+        <p>Write a sequence where the base turns, then the shoulder lifts, then the elbow extends—all without pausing the program flow using only `millis()`. (A challenge for Intermediate students!)</p>
+    </section>
+    
+    <section class="quick-quiz">
+        <h3>📝 Quick Quiz</h3>
+        <p>1. Why is using `delay()` generally avoided in complex robotic control?</p>
+        <p>2. How do you declare and attach the fifth servo joint in Arduino?</p>
+    </section>
+    
+    <footer class="lesson-nav">
+        <button class="nav-button prev">← 2.4 Build Joint 1 (1-DOF)</button>
+        <button class="nav-button next">MODULE 3 — Mechanics & Kinematics →</button>
+    </footer>
+</article>

@@ -1,0 +1,79 @@
+<article>
+    <header>
+        <h2>Build Joint 1 (1-DOF Prototype)</h2>
+    </header>
+
+    <section>
+        <p>A robotic arm is a series of mechanical joints. We will prototype the first joint, often called the **base or waist joint**, which provides a single degree of freedom (1-DOF) crucial for horizontal rotation.</p>
+        
+        <h3>Diagram: Base Joint Assembly</h3>
+        <p>This joint uses a heavy-duty servo (like an MG996R) connected to a 3D-printed or laser-cut base and turntable.</p>
+        
+    </section>
+
+    <section>
+        <h3>🧠 Section 1 — Core Concept: Degree of Freedom (DOF)</h3>
+        <ul>
+            <li>**1-DOF:** The base joint controls rotation around a single axis (vertical).</li>
+            <li>A robotic arm's dexterity depends directly on its total DOF (typically 4 to 6 for industrial arms).</li>
+            <li>To simplify control, we mount the servo vertically and attach the turntable directly to the output shaft.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>🔧 Section 2 — Hands-On: Assembly Steps</h3>
+        <p>Ensure all screws are tight to minimize backlash (unwanted movement/slop in the gears).</p>
+        <ol>
+            <li>Secure the servo motor vertically to the **base plate**.</li>
+            <li>Attach the **turntable** (the part that rotates) to the servo horn using the supplied screws.</li>
+            <li>Wire the servo signal to **Pin 10** for testing.</li>
+        </ol>
+    </section>
+
+    <section>
+        <h3>💻 Section 3 — Arduino Code Example (Sweep Test)</h3>
+        <p>Test the joint's limits. Ensure the mechanical assembly does not bind or stall the motor at its programmed extremes.</p>
+        <pre><code>
+#include &lt;Servo.h&gt;
+Servo baseJoint;
+
+void setup() {
+  baseJoint.attach(10); 
+  baseJoint.write(90); // Start centered
+  delay(500);
+}
+
+void loop() {
+  // Rotate slowly from 0 to 180
+  for (int angle = 0; angle <= 180; angle += 1) {
+    baseJoint.write(angle);
+    delay(10); 
+  }
+  delay(1000);
+  
+  // Rotate back slowly
+  for (int angle = 180; angle >= 0; angle -= 1) {
+    baseJoint.write(angle);
+    delay(10);
+  }
+  delay(1000);
+}
+        </code></pre>
+    </section>
+
+    <section class="mini-task">
+        <h3>🎯 Mini-Task: Measuring Backlash</h3>
+        <p>Power the servo, manually push the turntable, and see how far it moves before the servo resists. This movement is **backlash**.</p>
+    </section>
+    
+    <section class="quick-quiz">
+        <h3>📝 Quick Quiz</h3>
+        <p>1. What is the primary purpose of the base joint in a robotic arm?</p>
+        <p>2. What mechanical issue causes "slop" or unwanted movement?</p>
+    </section>
+    
+    <footer class="lesson-nav">
+        <button class="nav-button prev">← 2.3 LCD Screen (I2C)</button>
+        <button class="nav-button next">2.5 Multi‑Servo Control (2–4 DOF) →</button>
+    </footer>
+</article>

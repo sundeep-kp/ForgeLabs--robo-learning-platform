@@ -1,0 +1,63 @@
+<!-- public/content/m4s5-serialbridge.html -->
+<h1>Lesson: Arduino ↔ ROS2 Serial Bridge</h1>
+
+<h2>1. Introduction</h2>
+<p>This lesson shows how to send sensor/actuator data between an Arduino and ROS2 via a serial connection. We’ll use a minimal, robust message format and a simple Python bridge (serial→ROS2).</p>
+
+<h2>2. Core Concept (intuitive)</h2>
+<p>The Arduino sends compact text lines (e.g., <code>J1:45</code> for joint1=45°) over USB serial. A ROS2 node reads the serial port, parses lines, and republishes them as ROS messages. The reverse works for commands.</p>
+
+<h2>3. Step-by-Step Practical Instructions</h2>
+<ol>
+  <li>Wire Arduino to PC via USB. Power servos from an external supply but share ground.</li>
+  <li>On Arduino, publish a line every 100ms:
+    <pre><code>Serial.println("J1:" + String(angle));</code></pre>
+  </li>
+  <li>Install Python serial: <code>pip install pyserial rclpy</code>.</li>
+  <li>Create a Python bridge that opens the serial port and republishes to /joint1_angle:
+    <pre><code>ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)</code></pre>
+  </li>
+  <li>Use `ros2 topic pub` to send commands from ROS2 to Arduino by writing into serial from the bridge.</li>
+</ol>
+
+<h2>4. Code Example</h2>
+<pre><code># Minimal bridge example (pseudocode)
+import serial, rclpy
+from std_msgs.msg import Float32
+
+ser = serial.Serial('/dev/ttyUSB0',115200,timeout=1)
+node = rclpy.create_node('serial_bridge')
+pub = node.create_publisher(Float32, '/joint1_angle', 10)
+
+while rclpy.ok():
+  line = ser.readline().decode().strip()
+  if line.startswith('J1:'):
+    angle = float(line.split(':')[1])
+    msg = Float32()
+    msg.data = angle
+    pub.publish(msg)</code></pre>
+
+<h2>5. Hands-On Task</h2>
+<p>Write the Arduino snippet to send J1 angle. Build the Python bridge and verify `ros2 topic echo /joint1_angle` shows values coming from the Arduino.</p>
+
+<h2>6. Debugging Tips</h2>
+<ul>
+  <li>No data on serial: check port name (`ls /dev/tty*`), permissions, and baud rate.</li>
+  <li>Garbled characters: baud mismatch.</li>
+  <li>Bridge crashes: wrap parsing with try/except to avoid crashes on malformed lines.</li>
+</ul>
+
+<h2>7. Failure Modes</h2>
+<ul>
+  <li>Powering servo from Arduino 5V causes brownouts — use external supply.</li>
+  <li>Slow loop on bridge leads to skipped messages — decouple reading and publishing via a queue.</li>
+</ul>
+
+<h2>8. Mini-Quiz</h2>
+<ol>
+  <li>Why share ground between Arduino and external supply? — to ensure a common reference for signal voltage.</li>
+  <li>What causes garbled serial data? — mismatched baud rate or wiring issues.</li>
+</ol>
+
+<h2>9. Playground Hook</h2>
+<p>Playground → UART Visualizer → simulate Arduino sending joint angles and see ROS2 bridge behavior.</p>

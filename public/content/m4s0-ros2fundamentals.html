@@ -1,0 +1,81 @@
+<!-- public/content/m4s0-ros2fundamentals.html -->
+<h1>Lesson: ROS2 Fundamentals — Nodes, Topics, Parameters</h1>
+
+<h2>1. Introduction</h2>
+<p>This lesson explains the core ROS2 concepts you’ll use across the course: nodes, topics, messages, parameters and the common command-line tools. Think of ROS2 as a communication layer that lets pieces of your robot (hardware, controllers, visualizers) exchange data cleanly.</p>
+
+<h2>2. Core Concept (intuitive)</h2>
+<p><strong>Node:</strong> a running program/process that does work (sensor reader, motor controller, planner).<br>
+<strong>Topic:</strong> a named channel used for streaming data: publishers write to it and subscribers receive from it.<br>
+<strong>Message:</strong> the structured data sent on topics (e.g., sensor_msgs/Imu).<br>
+<strong>Parameter:</strong> a configuration value stored by a node (e.g., max_speed).</p>
+
+<h2>3. Step-by-Step Practical Instructions</h2>
+<ol>
+  <li>Install ROS2 (see m4s1-install for platform-specific commands).</li>
+  <li>Open a terminal and run a simple talker/listener demo:
+    <pre><code>ros2 run demo_nodes_cpp talker
+ros2 run demo_nodes_py listener</code></pre>
+  </li>
+  <li>Inspect the node graph:
+    <pre><code>ros2 node list
+ros2 topic list
+ros2 topic echo /topic_name</code></pre>
+  </li>
+  <li>Read a parameter (example):
+    <pre><code>ros2 param get /node_name param_name</code></pre>
+  </li>
+  <li>Publish a test message manually:
+    <pre><code>ros2 topic pub /chatter std_msgs/String "data: 'hello'"</code></pre>
+  </li>
+</ol>
+
+<h2>4. Code Example</h2>
+<pre><code># Minimal Python publisher (rclpy)
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class SimplePub(Node):
+  def __init__(self):
+    super().__init__('simple_pub')
+    self.pub = self.create_publisher(String, 'chatter', 10)
+    self.timer = self.create_timer(0.5, self.timer_cb)
+
+  def timer_cb(self):
+    msg = String()
+    msg.data = 'hi'
+    self.pub.publish(msg)
+
+def main():
+  rclpy.init()
+  node = SimplePub()
+  rclpy.spin(node)
+  node.destroy_node()
+  rclpy.shutdown()</code></pre>
+
+<h2>5. Hands-On Task</h2>
+<p>Run the talker/listener demo. Then create a small publisher node that publishes an angle (float) to a topic /joint_angle. Create a simple listener that prints the value.</p>
+
+<h2>6. Debugging Tips</h2>
+<ul>
+  <li>If `ros2 node list` shows nothing: check your ROS_DOMAIN_ID or that ros2 daemon is running.</li>
+  <li>Use `ros2 topic echo /your_topic` to verify messages are published.</li>
+  <li>If messages appear wrong, check message type (std_msgs/Float32 vs Float64 mismatch).</li>
+</ul>
+
+<h2>7. Failure Modes</h2>
+<ul>
+  <li>Node crashes on startup: missing dependency or wrong import — check `ros2 run` stderr.</li>
+  <li>Topics exist but listener receives nothing: mismatch in QoS or message type.</li>
+  <li>Parameter reads default value — you likely didn’t set or load the parameter file.</li>
+</ul>
+
+<h2>8. Mini-Quiz</h2>
+<ol>
+  <li>What command lists active nodes? — <em>ros2 node list</em></li>
+  <li>How do you inspect messages on a topic? — <em>ros2 topic echo /topic</em></li>
+</ol>
+
+<h2>9. Playground Hook</h2>
+<p>Playground → URDF Viewer → Open a simple 2-DOF model and publish joint states to see RViz update.</p>

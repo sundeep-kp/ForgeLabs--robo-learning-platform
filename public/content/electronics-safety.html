@@ -1,0 +1,205 @@
+<!-- public/content/electronics-safety.html -->
+<h1>Lesson: Electronics Safety & Failure Prevention</h1>
+
+<h2>1. Introduction</h2>
+<p>
+Robotics involves electricity, motors, sensors, and power delivery — all of which can fail quietly or catastrophically if handled incorrectly.  
+This lesson gives you a <strong>practical safety foundation</strong> so you avoid:
+<ul>
+  <li>burning components</li>
+  <li>short circuits</li>
+  <li>reverse polarity failures</li>
+  <li>brownouts</li>
+  <li>overcurrent damage</li>
+</ul>
+You will learn low-cost protection techniques, proper wiring discipline, and a safe debugging mindset used by real robotics engineers.
+</p>
+
+<p>
+For additional reading, check these excellent beginner-friendly safety guides:
+<ul>
+  <li><a href="https://learn.adafruit.com/category/safety" target="_blank">Adafruit Electronics Safety Guides</a></li>
+  <li><a href="https://learn.sparkfun.com/tutorials" target="_blank">SparkFun Tutorials (Power, Motors, Wiring)</a></li>
+  <li><a href="https://www.digikey.com/en/resources/education" target="_blank">DigiKey Electronics Education Hub</a></li>
+  <li><a href="https://www.allaboutcircuits.com/textbook/" target="_blank">All About Circuits – Free Electronics Textbook</a></li>
+</ul>
+</p>
+
+<hr>
+
+<h2>2. Core Concept (Intuitive)</h2>
+<p>
+Electronics safety is about managing three factors:
+</p>
+
+<ol>
+  <li><strong>Correct Wiring</strong> – consistent polarity, proper cable strain relief, avoiding exposed conductors.</li>
+  <li><strong>Correct Power Delivery</strong> – right voltage, current limits, fuses, and stable grounding.</li>
+  <li><strong>Controlled Testing</strong> – powering up slowly, checking current draw, validating logic before connecting expensive hardware.</li>
+</ol>
+
+<p>
+Most failures stem from simple mistakes that are easy to prevent with habits:
+<ul>
+  <li>Always connect GND first</li>
+  <li>Start with low current limits</li>
+  <li>Test in incremental layers</li>
+  <li>Never “hot‑swap” motor wires</li>
+</ul>
+</p>
+
+<hr>
+
+<h2>3. Step-by-Step Practical Instructions</h2>
+<ol>
+  <li>
+    <strong>Establish a common ground.</strong>  
+    All boards in a system must share GND, especially when mixing microcontrollers + external motor supplies.  
+    <em>Reference:</em>
+    <a href="https://learn.sparkfun.com/tutorials/voltage-dividers/voltage-basics" target="_blank">
+      SparkFun — Voltage & Grounding Basics
+    </a>
+  </li>
+
+  <li>
+    <strong>Use current‑limited supplies or inline protection.</strong><br>
+    Recommended methods:
+    <ul>
+      <li>Bench supply with adjustable current limit</li>
+      <li>Polyfuses (PTC resettable fuses)</li>
+      <li>Inline fast-blow fuse</li>
+    </ul>
+    <a href="https://www.adafruit.com/product/3986" target="_blank">Adafruit Resettable Fuses</a>
+  </li>
+
+  <li>
+    <strong>Test circuits incrementally.</strong>  
+    Before powering motors or servos, validate:
+    <ul>
+      <li>digital signals using LEDs</li>
+      <li>PWM output using a logic analyzer</li>
+      <li>sensor readings using serial print</li>
+    </ul>
+    Never plug in motors until you verify control logic works safely.
+  </li>
+
+  <li>
+    <strong>Use flyback diodes or protected drivers.</strong><br>
+    Inductive loads (motors, relays, solenoids) generate voltage spikes that can kill microcontrollers.  
+    Learn more:
+    <a href="https://learn.sparkfun.com/tutorials/motors-and-selecting-the-right-one" target="_blank">
+      SparkFun — Motor & Flyback Explained
+    </a>
+  </li>
+
+  <li>
+    <strong>Label, organize, and secure wires.</strong><br>
+    Many failures come from:
+    <ul>
+      <li>loose jumper wires</li>
+      <li>stray strands touching pins</li>
+      <li>cables pulling out during motion</li>
+    </ul>
+    Use zip ties, wire sleeves, and proper connectors.
+  </li>
+</ol>
+
+<hr>
+
+<h2>4. Code Example (Safe Practice Only)</h2>
+<pre><code>// Safe overload protection example
+if (current_reading > CURRENT_LIMIT) {
+    disable_motors();
+    log("Overcurrent — motors disabled to prevent damage.");
+}
+</code></pre>
+
+<p>
+This pattern is common in real robots: continuously monitor current and shut down if the system behaves unexpectedly.
+</p>
+
+<hr>
+
+<h2>5. Hands-On Task</h2>
+<p>Create a simple power safety test rig:</p>
+<ol>
+  <li>Connect a multimeter in <strong>series</strong> with a small load (like an LED + resistor).</li>
+  <li>Use a current-limited supply and slowly increase voltage.</li>
+  <li>Observe expected vs. unexpected current readings.</li>
+  <li>Practice powering off safely at the first sign of abnormal behavior.</li>
+</ol>
+
+<p>
+Optional tool:  
+<a href="https://www.adafruit.com/product/1291" target="_blank">Adafruit Power Supply (Breadboard-Friendly)</a>
+</p>
+
+<hr>
+
+<h2>6. Debugging Tips</h2>
+<ul>
+  <li><strong>Heat or smell?</strong> Power off immediately. Components fail silently before they fail visibly.</li>
+  <li><strong>Random resets?</strong> Likely brownouts → add capacitors or improve power rails.</li>
+  <li><strong>Noisy signals?</strong> Keep sensor wires away from motor wires, twist pairs, or use shielded cable.</li>
+  <li><strong>Inconsistent behavior?</strong> Change one variable at a time: wiring → power → code.</li>
+</ul>
+
+<hr>
+
+<h2>7. Failure Modes</h2>
+<ul>
+  <li>
+    <strong>Reverse polarity:</strong>  
+    A common and expensive mistake. Many modules die instantly when VCC/GND are flipped.  
+    Use keyed connectors or diode protection.
+  </li>
+
+  <li>
+    <strong>Brownouts:</strong>  
+    Motors draw high current → MCU resets.  
+    Fix with:
+    <ul>
+      <li>separate power rails</li>
+      <li>bulk capacitors near motors</li>
+      <li>a proper 5V regulator</li>
+    </ul>
+  </li>
+
+  <li>
+    <strong>Loose connectors:</strong>  
+    Causes ghost movement, random communication failures, and intermittent resets.
+  </li>
+
+  <li>
+    <strong>Excess current draw:</strong>  
+    Happens when motors stall or are mechanically blocked.  
+    Always monitor current on first power-up.
+  </li>
+</ul>
+
+<hr>
+
+<h2>8. Mini-Quiz</h2>
+<ol>
+  <li>
+    What should you do at the first sign of smoke or overheating?  
+    <em>Answer:</em> Disconnect power immediately.
+  </li>
+  <li>
+    Why is a polyfuse useful for prototyping?  
+    <em>Answer:</em> It automatically limits current and resets after a fault.
+  </li>
+  <li>
+    Why must all boards share a common ground?  
+    <em>Answer:</em> To ensure a stable reference for all logic signals.
+  </li>
+</ol>
+
+<hr>
+
+<h2>9. Playground Hook</h2>
+<p>
+Playground → Power Rails  
+→ Simulate short circuits, reverse polarity, and overcurrent conditions  
+→ Compare protected vs unprotected behavior in a safe virtual environment.
+</p>

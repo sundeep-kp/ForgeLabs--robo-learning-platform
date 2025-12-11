@@ -1,0 +1,84 @@
+<article>
+    <header>
+        <h2>Servo Motor Control (PWM)</h2>
+    </header>
+
+    <section>
+        <p>Servos allow us to rotate a joint to an exact angle. In this lesson, you'll learn how Pulse Width Modulation (PWM) signals control servo movement and prepare to build your first robotic joint.</p>
+        <p class="playground-link-embedded">
+            Quick Link: Use the **Open Servo Playground** button on the right to visualize the signal flow now!
+        </p>
+        
+        <h3>Wiring Diagram: Arduino to Servo</h3>
+        <p>It is critical to wire the servo's power source correctly to prevent damaging the Arduino's voltage regulator.</p>
+        
+    </section>
+
+    <section>
+        <h3>🧠 Section 1 — Core Concept: How PWM Controls Angle</h3>
+        <p>A servo motor rotates based on the **width (duration)** of the PWM pulse it receives on the signal line, sent at a frequency of 50 Hz (one pulse every 20ms).</p>
+        <ul>
+            <li>**1.0 ms pulse:** Rotates the servo to its **MIN** angle (usually 0°).</li>
+            <li>**1.5 ms pulse:** Rotates the servo to its **CENTER** angle (usually 90°).</li>
+            <li>**2.0 ms pulse:** Rotates the servo to its **MAX** angle (usually 180°).</li>
+        </ul>
+        <p>The servo controller internally compares the incoming pulse width to the feedback from its internal potentiometer to maintain the target angle (closed-loop control).</p>
+    </section>
+
+    <section>
+        <h3>🔧 Section 2 — Hands-On: Uploading Test Code</h3>
+        <p>For your physical test, ensure you use Pin 9 (a hardware PWM pin on the Uno) for the signal wire.</p>
+        <ol>
+            <li>Connect **GND (Black/Brown)** wire → Arduino GND.</li>
+            <li>Connect **5V (Red)** wire → **External Power Supply** (do NOT use the Arduino 5V pin for strong servos).</li>
+            <li>Connect **Signal (Yellow/White)** wire → Arduino **Digital Pin 9**.</li>
+        </ol>
+    </section>
+
+    <section>
+        <h3>💻 Section 3 — Arduino Code Example (Sweep)</h3>
+        <p>This simple code sweeps the servo from 0 to 180 degrees every second.</p>
+        <pre><code>
+// Required library for simple servo control
+#include &lt;Servo.h&gt;
+
+Servo arm;
+int servoPin = 9; // Connect signal wire here
+
+void setup() {
+  arm.attach(servoPin); // Attaches the servo object to the pin
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Rotate to 0 degrees
+  arm.write(0);
+  delay(1000); // Wait 1 second
+
+  // Rotate to 180 degrees
+  arm.write(180);
+  delay(1000); // Wait 1 second
+}
+        </code></pre>
+    </section>
+
+    <section class="mini-task">
+        <h3>🎯 Mini-Task: Testing Angle Limits</h3>
+        <p>Change the `arm.write()` values in the loop to test these discrete angles:</p>
+        <ul>
+            <li>Try **30°** and **150°**.</li>
+            <li>Try to find the actual physical limits of your servo (e.g., it might only reach 5° to 175°).</li>
+        </ul>
+    </section>
+
+    <section class="quick-quiz">
+        <h3>📝 Quick Quiz</h3>
+        <p>1. What happens if you stall a servo (prevent it from moving)?</p>
+        <p>2. Which wire carries the PWM signal?</p>
+    </section>
+    
+    <footer class="lesson-nav">
+        <button class="nav-button prev">← 2.1 LED Control (I/O)</button>
+        <button class="nav-button next">2.3 LCD Screen (I2C) →</button>
+    </footer>
+</article>

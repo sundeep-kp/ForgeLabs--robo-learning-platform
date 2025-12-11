@@ -1,0 +1,55 @@
+<!-- public/content/m6s4-dxlmodes.html -->
+<h1>Lesson: Dynamixel Operating Modes — Position / Velocity / Torque</h1>
+
+<h2>1. Introduction</h2>
+<p>Dynamixel actuators (XM/X series) support multiple operating modes. Choosing the correct mode matters for control quality, safety, and application: position mode for precision, velocity for wheels, torque/current for force-sensitive tasks.</p>
+
+<h2>2. Core Concept (intuitive)</h2>
+<p><strong>Position Mode:</strong> the motor internally runs a control loop to reach a target angle — easiest for joint control.<br>
+<strong>Velocity Mode:</strong> you command speed; useful for continuous rotation tasks.<br>
+<strong>Torque/Current Mode:</strong> control the torque output — used for compliant behaviors or force control.</p>
+
+<h2>3. Step-by-Step Practical Instructions</h2>
+<ol>
+  <li>Connect Dynamixel via U2D2 to USB; launch Dynamixel Wizard or use SDK to ping motors.</li>
+  <li>Set motor ID and baudrate. Example SDK command (python):
+    <pre><code>dxl_comm.set_operating_mode(dxl_id, OP_POSITION)</code></pre>
+  </li>
+  <li>Position example: send goal position and monitor present position & torque.</li>
+  <li>Torque mode example: enable torque mode and command a current value carefully (low values first).</li>
+  <li>Always monitor temperature/current to avoid damage.</li>
+</ol>
+
+<h2>4. Code Example</h2>
+<pre><code># Pseudocode using Dynamixel SDK
+from dynamixel_sdk import *
+portHandler = PortHandler('/dev/ttyUSB0')
+packetHandler = PacketHandler(2.0) # protocol 2.0
+packetHandler.write1ByteTxRx(portHandler, dxl_id, ADDR_OPERATING_MODE, OP_POSITION)
+packetHandler.write4ByteTxRx(portHandler, dxl_id, ADDR_GOAL_POSITION, goal_pos)</code></pre>
+
+<h2>5. Hands-On Task</h2>
+<p>Set a single XM430 to position mode. Command it to sweep from 0° to 90° in steps and log present position and current draw.</p>
+
+<h2>6. Debugging Tips</h2>
+<ul>
+  <li>If motor ignores commands: confirm operating mode, correct ID, and sufficient power.</li>
+  <li>In torque mode, small current values first; large currents can stall and overheat the motor.</li>
+  <li>If you see communication errors, check termination and bus wiring (RS485 wiring if used).</li>
+</ul>
+
+<h2>7. Failure Modes</h2>
+<ul>
+  <li>Overcurrent during stall — motor will heat and may trip thermal protection.</li>
+  <li>ID collisions — two motors with same ID behave unpredictably.</li>
+  <li>Using position mode for heavy loads without proper gearing causes loss of precision or motor failure.</li>
+</ul>
+
+<h2>8. Mini-Quiz</h2>
+<ol>
+  <li>Which mode uses internal PID to reach an angle? — Position Mode</li>
+  <li>Why is torque mode dangerous without limits? — It can apply force continuously and overheat the motor.</li>
+</ol>
+
+<h2>9. Playground Hook</h2>
+<p>Playground → Dynamixel Simulator → switch modes (position/velocity/torque) and observe motor behavior and current draw visualization.</p>
