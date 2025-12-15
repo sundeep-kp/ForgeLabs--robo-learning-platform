@@ -7,7 +7,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
-        playground: '/public/playground.html'
+        playground: 'playground.html'
       }
     }
   }
