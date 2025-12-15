@@ -6,7 +6,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         
-        
+        input: 'index.html',
         // Second entry point for the PLAYGROUND page
         playground: resolve(__dirname, 'public/playground.html'), 
       },
