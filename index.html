@@ -1,47 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotics: Learn & Play | LEARN</title>
-    <link rel="stylesheet" href="/src/style.css"> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robotics: Learn & Play | LEARN</title>
 </head>
 <body>
-    
-    <header class="top-nav">
-        <h1>🤖 Robotics Learning Roadmaps</h1>
-        <a href="/playground.html">Go to the 🕹️ PLAYGROUND</a>
-    </header>
 
-    <main id="course-layout">
-        
-        <aside id="roadmap-list">
-            <h2>Roadmaps</h2>
-            </aside>
+  <header class="top-nav">
+    <h1>🤖 Robotics Learning Roadmaps</h1>
+    <a href="/playground.html">Go to the 🕹️ PLAYGROUND</a>
+  </header>
 
-        <section id="content-area">
-            <div class="welcome-message">
-                <h2>Welcome! Select a Chapter to Begin.</h2>
-            </div>
-        </section>
+  <main id="course-layout">
 
-        <aside id="right-sidebar">
-            </aside>
+    <aside id="roadmap-list">
+      <h2>Roadmaps</h2>
+    </aside>
 
-    </main>
-<!-- PEER SUPPORT WIDGET (BOTTOM-RIGHT) -->
-<div id="peer-support-box">
-  <div id="peer-support-header">🧑‍🤝‍🧑 Peer Support</div>
-  <div id="peer-support-messages"></div>
-  <div id="peer-support-input-area">
-    <input type="text" id="peer-support-input" placeholder="Ask a peer...">
-    <button id="peer-support-send">Send</button>
+    <section id="content-area">
+      <div class="welcome-message">
+        <h2>Welcome! Select a Chapter to Begin.</h2>
+      </div>
+    </section>
+
+    <aside id="right-sidebar"></aside>
+
+  </main>
+
+  <!-- PEER SUPPORT WIDGET (BOTTOM-RIGHT) -->
+  <div id="peer-support-box">
+    <div id="peer-support-header">🧑‍🤝‍🧑 Peer Support</div>
+    <div id="peer-support-messages"></div>
+    <div id="peer-support-input-area">
+      <input type="text" id="peer-support-input" placeholder="Ask a peer..." />
+      <button id="peer-support-send">Send</button>
+    </div>
   </div>
-</div>
 
-    <script type="module" src="/src/learn.js"></script>
-    <script type="module" src="/src/peersupport.js"></script>
-
+  <!-- SINGLE VITE ENTRY -->
+  <script type="module" src="/src/learn-entry.js"></script>
 
 </body>
 </html>

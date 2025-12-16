@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotics: Learn & Play | PLAYGROUND</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robotics: Learn & Play | PLAYGROUND</title>
 </head>
 <body>
-    <header>
-        <h1>🕹️ Interactive Robotics Playground</h1>
-        <a href="/">Go back to the 📚 LEARN section</a>
-    </header>
 
-    <div id="playground-layout">
-        <div id="threejs-container"></div>
+  <header>
+    <h1>🕹️ Interactive Robotics Playground</h1>
+    <a href="/">Go back to the 📚 LEARN section</a>
+  </header>
 
-        <aside id="ui-panel">
-            <h2>Component Control</h2>
-            <p id="component-info">Select a component in the 3D view.</p>
-            <div id="controls-area"></div>
-        </aside>
-    </div>
+  <div id="playground-layout">
+    <div id="threejs-container"></div>
 
-    <!-- Vite entry point (DEV only, rewritten on build) -->
-    <script type="module" src="/src/playground.js"></script>
+    <aside id="ui-panel">
+      <h2>Component Control</h2>
+      <p id="component-info">Select a component in the 3D view.</p>
+      <div id="controls-area"></div>
+    </aside>
+  </div>
+
+  <!-- SINGLE VITE ENTRY -->
+  <script type="module" src="/src/playground-entry.js"></script>
+
 </body>
 </html>

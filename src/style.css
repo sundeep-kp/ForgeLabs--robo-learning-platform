@@ -186,13 +186,13 @@ header a:hover {
 
 /* 3. Right Sidebar */
 #right-sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    /* Add background/borders for visibility */
-    background-color: #e9ecef;
-    padding: 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
 #content-area h2 {
     color: #362adb;
     margin-bottom: 20px;
@@ -337,4 +337,100 @@ pre {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+/* =========================
+   AI CHAT — CLEAN SIDEBAR UI
+   ========================= */
+
+#ai-assistant-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #eaeaea;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+
+/* Header */
+#ai-assistant-container h4 {
+  margin: 0;
+  padding: 10px 14px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+  letter-spacing: 0.3px;
+  color: #9cdcfe;
+}
+
+/* Messages */
+#chat-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Message bubbles */
+.msg-ai,
+.msg-user {
+  max-width: 90%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* AI message */
+.msg-ai {
+  align-self: flex-start;
+  background: #2d2d30;
+  border-left: 3px solid #4fc3f7;
+}
+
+/* User message */
+.msg-user {
+  align-self: flex-end;
+  background: #0e639c;
+  color: white;
+}
+
+/* Input area */
+.chat-controls {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px solid #333;
+  background: #252526;
+}
+
+#chat-input {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+  outline: none;
+}
+
+#chat-input:focus {
+  border-color: #4fc3f7;
+}
+
+#chat-send {
+  background: #0e639c;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#chat-send:hover {
+  background: #1177bb;
 }
