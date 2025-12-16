@@ -1,0 +1,23 @@
+#content-area h1 {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+#content-area h2 {
+  margin-top: 32px;
+  font-size: 1.4rem;
+}
+
+#content-area p {
+  line-height: 1.7;
+  margin: 12px 0;
+  color: #1f2937;
+}
+
+pre {
+  background: #020617;
+  color: #e5e7eb;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+}

@@ -187,11 +187,11 @@ header a:hover {
 /* 3. Right Sidebar */
 #right-sidebar {
   position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+  top: 72px; /* header height */
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
 }
+
 
 #content-area h2 {
     color: #362adb;
@@ -433,4 +433,667 @@ pre {
 
 #chat-send:hover {
   background: #1177bb;
+}
+
+/* ===============================
+   RIGHT SIDEBAR — DESKTOP FIRST
+   =============================== */
+
+#right-sidebar {
+  width: 340px;
+  min-width: 340px;
+  height: calc(100vh - 64px);
+  padding: 16px;
+  overflow-y: auto;
+
+  background: #0f1115;
+  border-left: 1px solid #1f2430;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#right-sidebar h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e6e9ef;
+  margin-bottom: 4px;
+}
+
+/* ===============================
+   TOOL SECTIONS (CARDS)
+   =============================== */
+
+.tool-section {
+  background: #151922;
+  border: 1px solid #22283a;
+  border-radius: 10px;
+  padding: 12px 14px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool-section h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cdd6f4;
+  margin-bottom: 4px;
+}
+
+/* Lists */
+.tool-section ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.tool-section li {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #aab1c3;
+  margin-bottom: 6px;
+}
+
+/* Links */
+.tool-section a {
+  color: #89b4fa;
+  text-decoration: none;
+}
+
+.tool-section a:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+   PLAYGROUND LINK
+   =============================== */
+
+.playground-link {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 8px 10px;
+
+  background: #1b2030;
+  border: 1px solid #2a3150;
+  border-radius: 6px;
+
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.playground-link:hover {
+  background: #22274a;
+}
+
+/* ===============================
+   AI PANEL
+   =============================== */
+
+.ai-panel {
+  margin-top: auto; /* pushes AI to bottom */
+}
+
+/* Chat messages box */
+.ai-chat-box {
+  height: 180px;
+  overflow-y: auto;
+
+  background: #0b0d13;
+  border: 1px solid #22283a;
+  border-radius: 6px;
+  padding: 8px;
+
+  font-size: 0.8rem;
+  color: #cdd6f4;
+}
+
+/* Messages */
+.msg-ai {
+  color: #a6e3a1;
+  margin-bottom: 6px;
+}
+
+.msg-user {
+  color: #f9e2af;
+  margin-bottom: 6px;
+}
+
+/* Input row */
+.ai-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.ai-input-row input {
+  flex: 1;
+  padding: 6px 8px;
+
+  background: #0b0d13;
+  border: 1px solid #22283a;
+  border-radius: 6px;
+
+  color: #e6e9ef;
+  font-size: 0.8rem;
+}
+
+.ai-input-row button {
+  padding: 6px 10px;
+
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 6px;
+
+  color: #e6e9ef;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.ai-input-row button:hover {
+  background: #45475a;
+}
+/* Right sidebar sections */
+.sidebar-section {
+  background: #111827;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+}
+
+.section-header {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.section-header:hover {
+  background: #1f2937;
+}
+
+.section-body {
+  padding: 10px 14px 14px;
+}
+
+.sidebar-section.collapsed .section-body {
+  display: none;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+}
+
+.sidebar-section.collapsed .chevron {
+  transform: rotate(-90deg);
+}
+
+
+/* ===============================
+   RIGHT SIDEBAR — VISUAL SYSTEM
+   =============================== */
+
+#right-sidebar {
+  position: sticky;
+  top: 72px; /* height of top nav */
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+
+  background: #0f1117;
+  color: #e6e6eb;
+  padding: 1rem;
+  border-left: 1px solid #1e2230;
+}
+
+/* Sidebar title */
+#right-sidebar h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+/* Generic card */
+#right-sidebar section {
+  background: #151826;
+  border-radius: 10px;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+/* Section headers */
+#right-sidebar h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+  color: #cfd6ff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Lists */
+#right-sidebar ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#right-sidebar li {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+  color: #d0d3dc;
+}
+
+/* Links */
+#right-sidebar a {
+  color: #8ab4ff;
+  text-decoration: none;
+}
+
+#right-sidebar a:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+   SPECIAL SECTIONS
+   =============================== */
+
+/* Debugging tips */
+.lesson-debugging {
+  border-left: 4px solid #4da3ff;
+}
+
+/* Failure modes */
+.lesson-failure {
+  border-left: 4px solid #f5b942;
+  background: #1b1a12;
+}
+
+.lesson-failure li {
+  color: #f0d9a6;
+}
+
+/* Playground CTA */
+.lesson-playground {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  text-align: center;
+}
+
+.lesson-playground a {
+  display: inline-block;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.12);
+}
+
+.lesson-playground a:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ===============================
+   AI ASSISTANT
+   =============================== */
+
+#ai-assistant-container {
+  background: #0b0d14;
+  border: 1px solid #1f2433;
+}
+
+.chat-box {
+  max-height: 240px;
+  overflow-y: auto;
+  background: #0f1117;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.msg-ai {
+  color: #b6f2c2;
+  margin-bottom: 0.4rem;
+}
+
+.msg-user {
+  color: #8ab4ff;
+  margin-bottom: 0.4rem;
+}
+
+.chat-controls {
+  display: flex;
+  gap: 0.4rem;
+}
+
+#chat-input {
+  flex: 1;
+  background: #0f1117;
+  border: 1px solid #1f2433;
+  color: #ffffff;
+  padding: 0.4rem;
+  border-radius: 4px;
+}
+
+#chat-input:focus {
+  outline: none;
+  border-color: #4da3ff;
+}
+
+#chat-send {
+  background: #2563eb;
+  border: none;
+  color: #ffffff;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#chat-send:hover {
+  background: #1d4ed8;
+}
+
+/* ===============================
+   RIGHT SIDEBAR — VISUAL SYSTEM
+   =============================== */
+
+#right-sidebar {
+  position: sticky;
+  top: 72px; /* height of top nav */
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+
+  background: #0f1117;
+  color: #e6e6eb;
+  padding: 1rem;
+  border-left: 1px solid #1e2230;
+}
+
+/* Sidebar title */
+#right-sidebar h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+/* Generic card */
+#right-sidebar section {
+  background: #151826;
+  border-radius: 10px;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+/* Section headers */
+#right-sidebar h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+  color: #cfd6ff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Lists */
+#right-sidebar ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#right-sidebar li {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+  color: #d0d3dc;
+}
+
+/* Links */
+#right-sidebar a {
+  color: #8ab4ff;
+  text-decoration: none;
+}
+
+#right-sidebar a:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+   SPECIAL SECTIONS
+   =============================== */
+
+/* Debugging tips */
+.lesson-debugging {
+  border-left: 4px solid #4da3ff;
+}
+
+/* Failure modes */
+.lesson-failure {
+  border-left: 4px solid #f5b942;
+  background: #1b1a12;
+}
+
+.lesson-failure li {
+  color: #f0d9a6;
+}
+
+/* Playground CTA */
+.lesson-playground {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  text-align: center;
+}
+
+.lesson-playground a {
+  display: inline-block;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.12);
+}
+
+.lesson-playground a:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ===============================
+   AI ASSISTANT
+   =============================== */
+
+#ai-assistant-container {
+  background: #0b0d14;
+  border: 1px solid #1f2433;
+}
+
+.chat-box {
+  max-height: 240px;
+  overflow-y: auto;
+  background: #0f1117;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.msg-ai {
+  color: #b6f2c2;
+  margin-bottom: 0.4rem;
+}
+
+.msg-user {
+  color: #8ab4ff;
+  margin-bottom: 0.4rem;
+}
+
+.chat-controls {
+  display: flex;
+  gap: 0.4rem;
+}
+
+#chat-input {
+  flex: 1;
+  background: #0f1117;
+  border: 1px solid #1f2433;
+  color: #ffffff;
+  padding: 0.4rem;
+  border-radius: 4px;
+}
+
+#chat-input:focus {
+  outline: none;
+  border-color: #4da3ff;
+}
+
+#chat-send {
+  background: #2563eb;
+  border: none;
+  color: #ffffff;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#chat-send:hover {
+  background: #1d4ed8;
+}
+
+
+
+
+
+
+/* ===============================
+   RESPONSIVE — MOBILE
+   =============================== */
+
+@media (max-width: 1024px) {
+  #course-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #roadmap-list {
+    display: none;
+  }
+
+  #right-sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    max-height: 60vh;
+    border-left: none;
+    border-top: 1px solid #1e2230;
+    border-radius: 16px 16px 0 0;
+    z-index: 100;
+  }
+
+  #content-area {
+    padding-bottom: 60vh;
+  }
+}
+
+/* ===============================
+   COLLAPSIBLE MODULES
+   =============================== */
+
+.roadmap-module {
+  margin-bottom: 0.6rem;
+}
+
+.roadmap-module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: #151826;
+  font-size: 0.85rem;
+}
+
+.roadmap-module-header:hover {
+  background: #1f2433;
+}
+
+.roadmap-module .chevron {
+  transition: transform 0.2s ease;
+}
+
+/* collapsed by default */
+.roadmap-module .roadmap-lessons {
+  display: none;
+  margin-top: 0.3rem;
+}
+
+/* expanded */
+.roadmap-module.open .roadmap-lessons {
+  display: block;
+}
+
+.roadmap-module.open .chevron {
+  transform: rotate(90deg);
+}
+#roadmap-toggle {
+  display: none;
+  font-size: 1.3rem;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+
+  #roadmap-toggle {
+    display: block;
+  }
+
+  #roadmap-list {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    background: #0f1220;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+    padding-top: 3.5rem;
+  }
+
+  #roadmap-list.open {
+    transform: translateX(0);
+  }
+
+  /* dim background */
+  #roadmap-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+
+  #roadmap-backdrop.show {
+    display: block;
+  }
+
+  /* layout fixes */
+  #course-layout {
+    grid-template-columns: 1fr;
+  }
 }

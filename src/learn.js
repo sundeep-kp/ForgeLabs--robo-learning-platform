@@ -152,20 +152,31 @@ function initChatbot(contextId) {
 // ===============================
 function renderRightSidebar(lesson) {
   const rightSidebar = document.getElementById("right-sidebar");
-  if (!rightSidebar || !lesson) return;
+  if (!rightSidebar || !lesson) {
+    console.warn("Right sidebar or lesson missing");
+    return;
+  }
 
-  let html = `<h3>Component Control</h3>`;
+  let html = `
+    <h3 class="sidebar-title">Component Control</h3>
+  `;
 
-  // 1. Resources
-  if (lesson.resources?.length) {
+  // =========================
+  // 1. Useful Resources
+  // =========================
+  if (Array.isArray(lesson.resources) && lesson.resources.length) {
     html += `
-      <section class="lesson-resources">
+      <section class="sidebar-card resources">
         <h4>🔗 Useful Resources</h4>
         <ul>
           ${lesson.resources
             .map(
               r =>
-                `<li><a href="${r.url}" target="_blank" rel="noopener">${r.name}</a></li>`
+                `<li>
+                  <a href="${r.url}" target="_blank" rel="noopener">
+                    ${r.name}
+                  </a>
+                </li>`
             )
             .join("")}
         </ul>
@@ -173,10 +184,12 @@ function renderRightSidebar(lesson) {
     `;
   }
 
-  // 2. Debugging tips
-  if (lesson.debugging?.length) {
+  // =========================
+  // 2. Debugging Tips
+  // =========================
+  if (Array.isArray(lesson.debugging) && lesson.debugging.length) {
     html += `
-      <section class="lesson-debugging">
+      <section class="sidebar-card debugging">
         <h4>🛠 Debugging Tips</h4>
         <ul>
           ${lesson.debugging.map(t => `<li>${t}</li>`).join("")}
@@ -185,10 +198,12 @@ function renderRightSidebar(lesson) {
     `;
   }
 
-  // 3. Failure modes
-  if (lesson.failure?.length) {
+  // =========================
+  // 3. Failure Modes
+  // =========================
+  if (Array.isArray(lesson.failure) && lesson.failure.length) {
     html += `
-      <section class="lesson-failure">
+      <section class="sidebar-card failure">
         <h4>⚠️ Common Failure Modes</h4>
         <ul>
           ${lesson.failure.map(f => `<li>${f}</li>`).join("")}
@@ -197,21 +212,30 @@ function renderRightSidebar(lesson) {
     `;
   }
 
-  // 4. Playground link
+  // =========================
+  // 4. Playground Link
+  // =========================
   if (lesson.playground) {
     html += `
-      <section class="lesson-playground">
+      <section class="sidebar-card playground">
         <h4>▶ Playground</h4>
-        <a href="${lesson.playground}" target="_blank" rel="noopener">
+        <a
+          href="${lesson.playground}"
+          target="_blank"
+          rel="noopener"
+          class="playground-btn"
+        >
           Open Interactive Playground
         </a>
       </section>
     `;
   }
 
-  // 5. AI Assistant (always last)
+  // =========================
+  // 5. AI Assistant (Always Last)
+  // =========================
   html += `
-    <section id="ai-assistant-container">
+    <section id="ai-assistant-container" class="sidebar-card ai">
       <h4>💬 AI Debugging Assistant</h4>
       <div id="chat-messages" class="chat-box"></div>
       <div class="chat-controls">
@@ -227,8 +251,11 @@ function renderRightSidebar(lesson) {
 
   rightSidebar.innerHTML = html;
 
-  // Infer chat context
+  // =========================
+  // Infer AI context
+  // =========================
   let chatContext = "default";
+
   if (lesson.id.includes("servo")) chatContext = "servo-motor";
   else if (lesson.id.includes("sensor") || lesson.id.includes("ultrasonic"))
     chatContext = "ultrasonic-sensor";
@@ -243,7 +270,6 @@ function renderRightSidebar(lesson) {
 
   initChatbot(chatContext);
 }
-
 
 function findLessonById(id) {
   for (const roadmap of Object.values(roboticsRoadmaps)) {
@@ -287,12 +313,69 @@ function checkHashForContent() {
 
   loadContent(lesson.contentFile, lesson);
 }
+function enableRoadmapAccordion() {
+  const modules = document.querySelectorAll("[data-module]");
+
+  modules.forEach(module => {
+    const header = module.querySelector(".roadmap-module-header");
+
+    if (!header) return;
+
+    header.addEventListener("click", () => {
+      // close others
+      modules.forEach(m => {
+        if (m !== module) m.classList.remove("open");
+      });
+
+      // toggle current
+      module.classList.toggle("open");
+    });
+  });
+
+  // auto-open module containing active lesson
+  const activeLesson = document.querySelector(".roadmap-lessons li.active");
+  if (activeLesson) {
+    const parentModule = activeLesson.closest("[data-module]");
+    if (parentModule) parentModule.classList.add("open");
+  }
+}
+
+function enableMobileRoadmapDrawer() {
+  const toggle = document.getElementById("roadmap-toggle");
+  const roadmap = document.getElementById("roadmap-list");
+  const backdrop = document.getElementById("roadmap-backdrop");
+
+  if (!toggle || !roadmap || !backdrop) return;
+
+  const open = () => {
+    roadmap.classList.add("open");
+    backdrop.classList.add("show");
+  };
+
+  const close = () => {
+    roadmap.classList.remove("open");
+    backdrop.classList.remove("show");
+  };
+
+  toggle.addEventListener("click", open);
+  backdrop.addEventListener("click", close);
+
+  // close when clicking a lesson
+  roadmap.addEventListener("click", e => {
+    if (e.target.matches("li[data-lesson], a")) {
+      close();
+    }
+  });
+}
+
 
 // ===============================
 // BOOTSTRAP
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   renderRoadmapNav();
+  enableRoadmapAccordion();
+  enableMobileRoadmapDrawer();
   checkHashForContent();
 });
 

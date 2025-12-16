@@ -1,0 +1,59 @@
+:root {
+  --topbar-height: 56px;
+
+  --sidebar-left-width: 280px;
+  --sidebar-right-width: 340px;
+
+  --content-max-width: 820px;
+
+  --bg-main: #f7f7fb;
+  --bg-sidebar: #111827;
+  --bg-tools: #0f172a;
+
+  --text-main: #111;
+  --text-muted: #6b7280;
+  --text-invert: #e5e7eb;
+
+  --accent: #4f46e5;
+  --border-soft: #e5e7eb;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.top-bar {
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: #020617;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns:
+    var(--sidebar-left-width)
+    1fr
+    var(--sidebar-right-width);
+  height: calc(100vh - var(--topbar-height));
+}
+
+.content-core {
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+#content-area {
+  width: 100%;
+  max-width: var(--content-max-width);
+  padding: 40px 32px 80px;
+}

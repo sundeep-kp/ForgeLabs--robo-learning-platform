@@ -1,49 +1,46 @@
-// ======== Fake Peer Support System ========
+// src/peersupport.js
+// STEP 1: Floating Peer Support Button (UI only)
+console.log("🔥 peersupport.js LOADED");
 
-const cannedReplies = [
-  "I had the same issue! Try checking your ground wire.",
-  "Make sure you powered the servo externally — that fixed it for me!",
-  "This happened to me yesterday 😭 — turned out to be a loose jumper cable.",
-  "Try running a minimal test sketch to isolate the bug.",
-  "If nothing works, restart your microcontroller. It solves 80% of problems lol.",
-];
+(function initPeerSupport() {
+  // Prevent double init
+  if (document.getElementById("peer-support-fab")) return;
 
-function peerSendMessage(sender, text) {
-  const box = document.getElementById("peer-support-messages");
-  if (!box) return;
+  // ---------- FAB BUTTON ----------
+  const fab = document.createElement("button");
+  fab.id = "peer-support-fab";
+  fab.innerHTML = "🧑‍🤝‍🧑";
+  fab.title = "Peer Support";
 
-  const msg = document.createElement("div");
-  msg.className = sender === "peer" ? "peer-msg" : "user-msg";
-  msg.textContent = text;
-  box.appendChild(msg);
+  // ---------- DM PANEL (stub for now) ----------
+  const panel = document.createElement("div");
+  panel.id = "peer-support-panel";
+  panel.innerHTML = `
+    <div class="ps-header">
+      <span>Peer Support</span>
+      <button id="ps-close">✕</button>
+    </div>
+    <div class="ps-body">
+      <p style="opacity:0.6; font-size:14px;">
+        DM UI loading… (yes, this is intentional)
+      </p>
+    </div>
+  `;
 
-  box.scrollTop = box.scrollHeight;
-}
+  document.body.appendChild(fab);
+  document.body.appendChild(panel);
 
-function initPeerSupport() {
-  const input = document.getElementById("peer-support-input");
-  const sendBtn = document.getElementById("peer-support-send");
-
-  if (!input || !sendBtn) return;
-
-  sendBtn.onclick = () => sendMessage();
-  input.onkeypress = (e) => {
-    if (e.key === "Enter") sendMessage();
+  // ---------- TOGGLE LOGIC ----------
+  const openPanel = () => {
+    panel.classList.add("open");
+    fab.classList.add("hidden");
   };
 
-  function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return;
+  const closePanel = () => {
+    panel.classList.remove("open");
+    fab.classList.remove("hidden");
+  };
 
-    peerSendMessage("you", text);
-    input.value = "";
-
-    // Fake peer reply after 1s
-    setTimeout(() => {
-      const reply = cannedReplies[Math.floor(Math.random() * cannedReplies.length)];
-      peerSendMessage("peer", reply);
-    }, 1000);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", initPeerSupport);
+  fab.addEventListener("click", openPanel);
+  panel.querySelector("#ps-close").addEventListener("click", closePanel);
+})();

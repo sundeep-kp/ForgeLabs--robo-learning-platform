@@ -1,0 +1,84 @@
+/* ================================
+   Peer Support Floating Button
+================================ */
+
+#peer-support-fab {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  z-index: 9999;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#peer-support-fab:hover {
+  transform: scale(1.08);
+}
+
+#peer-support-fab.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ================================
+   Peer Support Panel (Stub)
+================================ */
+
+#peer-support-panel {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 420px;
+  height: 70vh;
+  background: #0f1115;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(120%);
+  transition: transform 0.25s ease;
+  z-index: 10000;
+}
+
+#peer-support-panel.open {
+  transform: translateY(0);
+}
+
+/* Header */
+.ps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #151820;
+  border-bottom: 1px solid #222;
+  font-weight: 600;
+}
+
+.ps-header button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.ps-header button:hover {
+  color: #fff;
+}
+
+/* Body */
+.ps-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  color: #ddd;
+}
