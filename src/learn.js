@@ -1,8 +1,8 @@
 // ===============================
-// learn.js — AI wired, structure preserved
+// learn.js — AI wired, structure preserved (CLEAN)
 // ===============================
 
-// 1. Import roadmaps + CSS
+// Imports
 import { roboticsRoadmaps } from './content-data';
 import './style.css';
 
@@ -81,19 +81,18 @@ async function handleAIQuery(text, contextId) {
     chatHistory.push({ sender: "You", text });
     chatHistory.push({ sender: "AI", text: reply });
 
-  } catch (err) {
-    // fallback to BoW
+  } catch {
     handleBoWQuery(text, contextId);
   }
 }
 
 function handleBoWQuery(query, contextId) {
-  query = query.toLowerCase();
+  const q = query.toLowerCase();
   const kb = staticKnowledgeBase[contextId] || staticKnowledgeBase.default;
 
   let response = kb.default;
   for (const key in kb) {
-    if (key !== "default" && query.includes(key)) {
+    if (key !== "default" && q.includes(key)) {
       response = kb[key];
       break;
     }
@@ -124,13 +123,17 @@ function initChatbot(contextId) {
   };
 
   btn.onclick = send;
-  input.onkeypress = e => {
-    if (e.key === "Enter") send();
-  };
+  input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    send();
+  }
+});
+
 }
 
 // ===============================
-// RIGHT SIDEBAR (UNCHANGED)
+// RIGHT SIDEBAR
 // ===============================
 function renderRightSidebar(data) {
   const rightSidebar = document.getElementById('right-sidebar');
@@ -157,57 +160,6 @@ function renderRightSidebar(data) {
 
   initChatbot(chatContext);
 }
-// ===============================
-// CHATBOT IMPLEMENTATION
-// ===============================
-function displayMessage(sender, text) {
-  const box = document.getElementById('chat-messages');
-  if (!box) return;
-
-  const div = document.createElement('div');
-  div.className = sender === "AI" ? "msg-ai" : "msg-user";
-  div.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-function handleBoWQuery(query, contextId) {
-  query = query.toLowerCase();
-  const kb = staticKnowledgeBase[contextId] || staticKnowledgeBase["default"];
-
-  let response = kb.default;
-
-  for (const key in kb) {
-    if (key !== "default" && query.includes(key)) {
-      response = kb[key];
-      break;
-    }
-  }
-
-  setTimeout(() => displayMessage("AI", response), 200);
-}
-
-function initChatbot(contextId) {
-  const input = document.getElementById('chat-input');
-  const btn = document.getElementById('chat-send');
-
-  if (!input || !btn) return;
-
-  displayMessage("AI", staticKnowledgeBase[contextId]?.default);
-
-  const send = () => {
-    const text = input.value.trim();
-    if (!text) return;
-    displayMessage("You", text);
-    handleBoWQuery(text, contextId);
-    input.value = '';
-  };
-
-  btn.onclick = send;
-  input.onkeypress = (e) => {
-    if (e.key === "Enter") send();
-  };
-}
 
 // ===============================
 // INITIALIZATION & HASH CHECK
@@ -219,10 +171,10 @@ function checkHashForContent() {
   const lesson = findLessonById(id);
   if (!lesson) return;
 
-  // If locked, show a friendly message instead of loading
   if (!canAccessLesson(id)) {
     renderRoadmapNav();
     renderRightSidebar(lesson);
+
     const contentArea = document.getElementById('content-area');
     if (contentArea) {
       contentArea.innerHTML = `
