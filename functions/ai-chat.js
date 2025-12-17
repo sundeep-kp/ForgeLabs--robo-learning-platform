@@ -2,6 +2,9 @@
 // Cloudflare Pages Function — POST /ai-chat
 // Primary: Gemma 3
 // Fallback: Gemini 1.5 Flash / Pro
+console.log("AI function invoked", {
+  hasKey: Boolean(env.GOOGLE_API_KEY)
+});
 
 export async function onRequestPost({ request, env }) {
   try {
