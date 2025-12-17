@@ -1,7 +1,6 @@
 // functions/ai-chat.js
 // Cloudflare Pages Function — POST /ai-chat
-// Primary: Gemma 3
-// Fallback: Gemini 1.5 Flash / Pro
+// Gemini Native API (stable, supported, sane)
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -20,7 +19,7 @@ export async function onRequestPost(context) {
       );
     }
 
-    // Parse body
+    // Parse request body
     let body;
     try {
       body = await request.json();
@@ -37,112 +36,93 @@ export async function onRequestPost(context) {
     }
 
     // ===============================
-    // CONFIG
+    // CONFIG (Gemini Native)
     // ===============================
-    const PRIMARY_MODEL = "gemma-3-4b-instruct";
-    const FALLBACK_MODELS = [
-      "gemini-1.5-flash",
-      "gemini-1.5-pro"
-    ];
-
+    const MODEL = "models/gemini-1.5-flash";
     const API_URL =
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-
-    const API_KEY = env.GOOGLE_API_KEY;
+      `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${env.GOOGLE_API_KEY}`;
 
     // ===============================
     // PROMPT CONSTRUCTION
     // ===============================
-    const trimmedHistory = history.slice(-6); // last 3 turns max
+    const trimmedHistory = history.slice(-6); // last 3 exchanges
 
-    const messages = [
-      {
-        role: "system",
-        content:
-          "You are a robotics debugging assistant. Be concise, practical, and technical."
-      },
+    const contents = [
       {
         role: "user",
-        content: `Context: lesson "${lessonId}".`
+        parts: [
+          {
+            text:
+              `You are a robotics debugging assistant.\n` +
+              `Be concise, practical, and technical.\n` +
+              `Lesson context: ${lessonId}`
+          }
+        ]
       },
       ...trimmedHistory.map(m => ({
-        role: m.sender === "AI" ? "assistant" : "user",
-        content: m.text
+        role: m.sender === "AI" ? "model" : "user",
+        parts: [{ text: m.text }]
       })),
       {
         role: "user",
-        content: userMessage
+        parts: [{ text: userMessage }]
       }
     ];
 
     // ===============================
     // REQUEST WITH TIMEOUT
     // ===============================
-    async function callModel(modelName) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20_000);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
 
-      try {
-        const res = await fetch(
-          `${API_URL}?key=${API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: modelName,
-              messages,
-              max_tokens: 500,
-              temperature: 0.4,
-              stream: false
-            }),
-            signal: controller.signal
-          }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok || data.error) {
-          throw new Error(
-            data?.error?.message || `Model ${modelName} failed`
-          );
-        }
-
-        const reply = data?.choices?.[0]?.message?.content;
-        if (!reply || typeof reply !== "string") {
-          throw new Error(`Empty response from ${modelName}`);
-        }
-
-        return reply;
-      } finally {
-        clearTimeout(timeout);
-      }
-    }
-
-    // ===============================
-    // MODEL ROUTING
-    // ===============================
-    let reply;
+    let responseText;
 
     try {
-      reply = await callModel(PRIMARY_MODEL);
-    } catch (err) {
-      console.warn("Gemma failed, falling back:", err.message);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents,
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 500
+          }
+        }),
+        signal: controller.signal
+      });
 
-      for (const model of FALLBACK_MODELS) {
-        try {
-          reply = await callModel(model);
-          break;
-        } catch (fallbackErr) {
-          console.warn(`Fallback ${model} failed:`, fallbackErr.message);
-        }
+      responseText = await res.text();
+
+      if (!res.ok) {
+        console.error("Gemini HTTP error:", responseText);
+        return json({ error: "Gemini API request failed" }, 500);
       }
+
+    } finally {
+      clearTimeout(timeout);
     }
 
+    // ===============================
+    // RESPONSE PARSING
+    // ===============================
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      console.error("Non-JSON Gemini response:", responseText);
+      return json({ error: "Invalid response from Gemini" }, 500);
+    }
+
+    const reply =
+      data?.candidates?.[0]?.content?.parts
+        ?.map(p => p.text)
+        ?.join("") || null;
+
     if (!reply) {
-      return json(
-        { error: "All AI models failed to respond" },
-        500
-      );
+      console.error("Empty Gemini response:", data);
+      return json({ error: "Empty response from Gemini" }, 500);
     }
 
     return json({ reply }, 200);
