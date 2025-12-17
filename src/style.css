@@ -866,9 +866,22 @@ pre {
   text-decoration: none;
 }
 
-#right-sidebar a:hover {
-  text-decoration: underline;
-}
+
+  #right-sidebar {
+    position: fixed;
+    
+    right:0;
+
+    
+    top: auto;
+    max-height: 60vh;
+    border-left: none;
+    border-top: 1px solid #1e2230;
+    border-radius: 16px 16px 0 0;
+    z-index: 2;
+  }
+
+
 
 /* ===============================
    SPECIAL SECTIONS
@@ -991,8 +1004,8 @@ pre {
   #right-sidebar {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    margin-left: auto;
+    
     top: auto;
     max-height: 60vh;
     border-left: none;

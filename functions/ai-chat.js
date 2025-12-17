@@ -1,6 +1,6 @@
 // functions/ai-chat.js
 // Cloudflare Pages Function — POST /ai-chat
-// Gemini Native API (stable)
+// Gemini Native API with ordered fallback
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -33,14 +33,24 @@ export async function onRequestPost(context) {
     }
 
     // ===============================
-    // CONFIG (USE THE MODEL THAT EXISTS)
+    // MODEL FALLBACK ORDER (APPROVED)
     // ===============================
-    const MODEL = "models/gemini-pro";
-    const API_URL =
-      `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${env.GOOGLE_API_KEY}`;
+    const MODELS = [
+      "models/gemma-3-4b-it",
+      "models/gemma-3-1b-it",
+
+      "models/gemini-2.5-flash",
+      "models/gemini-2.5-pro",
+
+      "models/gemini-2.0-flash",
+      "models/gemini-2.0-flash-001",
+
+      "models/gemini-2.0-flash-lite",
+      "models/gemini-2.0-flash-lite-001"
+    ];
 
     // ===============================
-    // PROMPT
+    // PROMPT CONSTRUCTION
     // ===============================
     const trimmedHistory = history.slice(-6);
 
@@ -50,8 +60,8 @@ export async function onRequestPost(context) {
         parts: [
           {
             text:
-              `You are a robotics debugging assistant.\n` +
-              `Be concise, practical, and technical.\n` +
+              "You are a robotics debugging assistant.\n" +
+              "Be concise, practical, and technical.\n" +
               `Lesson context: ${lessonId}`
           }
         ]
@@ -67,55 +77,84 @@ export async function onRequestPost(context) {
     ];
 
     // ===============================
-    // REQUEST
+    // MODEL CALLER
     // ===============================
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25_000);
+    async function callModel(model) {
+      const url =
+        `https://generativelanguage.googleapis.com/v1beta/` +
+        `${model}:generateContent?key=${env.GOOGLE_API_KEY}`;
 
-    let raw;
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents,
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 500
-          }
-        }),
-        signal: controller.signal
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25_000);
 
-      raw = await res.text();
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents,
+            generationConfig: {
+              temperature: 0.4,
+              maxOutputTokens: 500
+            }
+          }),
+          signal: controller.signal
+        });
 
-      if (!res.ok) {
-        console.error("Gemini HTTP error:", raw);
-        return json({ error: "Gemini API error" }, 500);
+        const raw = await res.text();
+
+        if (!res.ok) {
+          throw new Error(raw);
+        }
+
+        const data = JSON.parse(raw);
+
+        const reply =
+          data?.candidates?.[0]?.content?.parts
+            ?.map(p => p.text)
+            ?.join("");
+
+        if (!reply) {
+          throw new Error("Empty reply");
+        }
+
+        return reply;
+      } finally {
+        clearTimeout(timeout);
       }
-    } finally {
-      clearTimeout(timeout);
     }
 
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      console.error("Invalid JSON from Gemini:", raw);
-      return json({ error: "Invalid Gemini response" }, 500);
-    }
+    // ===============================
+    // FALLBACK EXECUTION
+    // ===============================
+    let reply = null;
+    let usedModel = null;
 
-    const reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map(p => p.text)
-        ?.join("");
+    for (const model of MODELS) {
+      try {
+        reply = await callModel(model);
+        usedModel = model;
+        console.log("AI response succeeded with:", model);
+        break;
+      } catch (err) {
+        console.warn("Model failed:", model);
+      }
+    }
 
     if (!reply) {
-      console.error("Empty Gemini reply:", data);
-      return json({ error: "Empty Gemini reply" }, 500);
+      return json(
+        { error: "All models failed to respond" },
+        500
+      );
     }
 
-    return json({ reply }, 200);
+    return json(
+      {
+        reply,
+        model: usedModel
+      },
+      200
+    );
 
   } catch (err) {
     console.error("Function crash:", err);
@@ -123,6 +162,9 @@ export async function onRequestPost(context) {
   }
 }
 
+// ===============================
+// HELPERS
+// ===============================
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
