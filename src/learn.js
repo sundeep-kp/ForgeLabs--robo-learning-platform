@@ -1,14 +1,15 @@
 // ===============================
-// learn.js — reconstructed, stable
+// learn.js — quiz-enabled, stable
 // ===============================
 
 // Imports
- 
 import { roboticsRoadmaps } from "./content-data";
 import "./style.css";
-import {
-  renderRoadmapNav
-} from "./roadmap.js";
+import { renderRoadmapNav } from "./roadmap.js";
+import { isLessonUnlocked } from "./locking.js";
+import { updateState } from "./state.js";
+import { QUIZ_DATA } from "./quiz-data.js";
+import { LESSON_ORDER } from "./lesson-order.js";
 
 // ===============================
 // STATIC KNOWLEDGE BASE (BoW FALLBACK)
@@ -67,7 +68,7 @@ function displayMessage(sender, text) {
 }
 
 // ===============================
-// AI CHAT (PRIMARY)
+// AI CHAT
 // ===============================
 async function handleAIQuery(text, contextId) {
   try {
@@ -87,7 +88,6 @@ async function handleAIQuery(text, contextId) {
     const reply = data.reply || "No response from AI.";
 
     displayMessage("AI", reply);
-
     chatHistory.push({ sender: "You", text });
     chatHistory.push({ sender: "AI", text: reply });
 
@@ -97,7 +97,7 @@ async function handleAIQuery(text, contextId) {
 }
 
 // ===============================
-// BoW FALLBACK (SECONDARY)
+// BoW FALLBACK
 // ===============================
 function handleBoWQuery(query, contextId) {
   const q = query.toLowerCase();
@@ -112,13 +112,12 @@ function handleBoWQuery(query, contextId) {
   }
 
   displayMessage("AI", response);
-
   chatHistory.push({ sender: "You", text: query });
   chatHistory.push({ sender: "AI", text: response });
 }
 
 // ===============================
-// CHAT INITIALIZER (ISOLATED)
+// CHAT INITIALIZER
 // ===============================
 function initChatbot(contextId) {
   chatHistory = [];
@@ -132,14 +131,13 @@ function initChatbot(contextId) {
   const send = () => {
     const text = input.value.trim();
     if (!text) return;
-
     displayMessage("You", text);
     handleAIQuery(text, contextId);
     input.value = "";
   };
 
   btn.onclick = send;
-  input.addEventListener("keydown", (e) => {
+  input.addEventListener("keydown", e => {
     if (e.key === "Enter") {
       e.preventDefault();
       send();
@@ -148,102 +146,130 @@ function initChatbot(contextId) {
 }
 
 // ===============================
-// RIGHT SIDEBAR (CHAT ONLY)
+// QUIZ HELPERS
 // ===============================
-function renderRightSidebar(lesson) {
-  const rightSidebar = document.getElementById("right-sidebar");
-  if (!rightSidebar || !lesson) {
-    console.warn("Right sidebar or lesson missing");
+function lessonHasQuiz(id) {
+  return Boolean(QUIZ_DATA[id]);
+}
+
+function renderQuiz(lessonId) {
+  const quiz = QUIZ_DATA[lessonId];
+  const container = document.getElementById("quiz-container");
+  if (!quiz || !container) return;
+
+  container.innerHTML = quiz.questions.map((q, qi) => `
+    <div class="quiz-question">
+      <p>${q.question}</p>
+      ${q.options.map(
+        (opt, oi) => `
+          <label>
+            <input type="radio" name="q${qi}" value="${oi}">
+            ${opt}
+          </label>
+        `
+      ).join("")}
+    </div>
+  `).join("");
+}
+
+function submitQuiz(lessonId) {
+  const quiz = QUIZ_DATA[lessonId];
+  if (!quiz) return;
+
+  let score = 0;
+
+  quiz.questions.forEach((q, qi) => {
+    const selected = document.querySelector(`input[name="q${qi}"]:checked`);
+    if (selected && Number(selected.value) === q.correctIndex) {
+      score++;
+    }
+  });
+
+  if (score < quiz.passScore) {
+    alert(`Quiz failed (${score}/${quiz.questions.length}). Try again.`);
     return;
   }
 
-  let html = `
-    <h3 class="sidebar-title">Component Control</h3>
-  `;
+  markLessonComplete(lessonId);
+  renderRoadmapNav();
+  checkHashForContent();
 
-  // =========================
-  // 1. Useful Resources
-  // =========================
-  if (Array.isArray(lesson.resources) && lesson.resources.length) {
+  alert("Quiz passed. Next lesson unlocked.");
+}
+
+// ===============================
+// RIGHT SIDEBAR
+// ===============================
+function renderRightSidebar(lesson) {
+  const rightSidebar = document.getElementById("right-sidebar");
+  if (!rightSidebar || !lesson) return;
+
+  let html = `<h3 class="sidebar-title">Component Control</h3>`;
+
+  if (lesson.resources?.length) {
     html += `
       <section class="sidebar-card resources">
         <h4>🔗 Useful Resources</h4>
         <ul>
-          ${lesson.resources
-            .map(
-              r =>
-                `<li>
-                  <a href="${r.url}" target="_blank" rel="noopener">
-                    ${r.name}
-                  </a>
-                </li>`
-            )
-            .join("")}
+          ${lesson.resources.map(r => `
+            <li><a href="${r.url}" target="_blank">${r.name}</a></li>
+          `).join("")}
         </ul>
       </section>
     `;
   }
 
-  // =========================
-  // 2. Debugging Tips
-  // =========================
-  if (Array.isArray(lesson.debugging) && lesson.debugging.length) {
+  if (lesson.debugging?.length) {
     html += `
       <section class="sidebar-card debugging">
         <h4>🛠 Debugging Tips</h4>
-        <ul>
-          ${lesson.debugging.map(t => `<li>${t}</li>`).join("")}
-        </ul>
+        <ul>${lesson.debugging.map(t => `<li>${t}</li>`).join("")}</ul>
       </section>
     `;
   }
 
-  // =========================
-  // 3. Failure Modes
-  // =========================
-  if (Array.isArray(lesson.failure) && lesson.failure.length) {
+  if (lesson.failure?.length) {
     html += `
       <section class="sidebar-card failure">
         <h4>⚠️ Common Failure Modes</h4>
-        <ul>
-          ${lesson.failure.map(f => `<li>${f}</li>`).join("")}
-        </ul>
+        <ul>${lesson.failure.map(f => `<li>${f}</li>`).join("")}</ul>
       </section>
     `;
   }
 
-  // =========================
-  // 4. Playground Link
-  // =========================
   if (lesson.playground) {
     html += `
       <section class="sidebar-card playground">
         <h4>▶ Playground</h4>
-        <a
-          href="${lesson.playground}"
-          target="_blank"
-          rel="noopener"
-          class="playground-btn"
-        >
+        <a href="${lesson.playground}" target="_blank" class="playground-btn">
           Open Interactive Playground
         </a>
       </section>
     `;
   }
 
-  // =========================
-  // 5. AI Assistant (Always Last)
-  // =========================
+  if (lessonHasQuiz(lesson.id)) {
+    html += `
+      <section class="sidebar-card quiz">
+        <h4>📝 Checkpoint Quiz</h4>
+        <div id="quiz-container"></div>
+        <button id="submit-quiz-btn">Submit Quiz</button>
+      </section>
+    `;
+  } else {
+    html += `
+      <section class="sidebar-card progress">
+        <button id="complete-lesson-btn">✅ Mark Lesson Complete</button>
+      </section>
+    `;
+  }
+
   html += `
-    <section id="ai-assistant-container" class="sidebar-card ai">
+    <section class="sidebar-card ai">
       <h4>💬 AI Debugging Assistant</h4>
       <div id="chat-messages" class="chat-box"></div>
       <div class="chat-controls">
-        <input
-          id="chat-input"
-          type="text"
-          placeholder="Ask about ${lesson.id}..."
-        />
+        <input id="chat-input" placeholder="Ask about ${lesson.id}..." />
         <button id="chat-send">Send</button>
       </div>
     </section>
@@ -251,33 +277,50 @@ function renderRightSidebar(lesson) {
 
   rightSidebar.innerHTML = html;
 
-  // =========================
-  // Infer AI context
-  // =========================
-  let chatContext = "default";
+  initChatbot(
+    lesson.id.includes("servo") ? "servo-motor" :
+    lesson.id.includes("sensor") ? "ultrasonic-sensor" :
+    lesson.id.includes("dxl") ? "dynamixel" :
+    lesson.id.includes("ros") ? "ros2" :
+    "default"
+  );
 
-  if (lesson.id.includes("servo")) chatContext = "servo-motor";
-  else if (lesson.id.includes("sensor") || lesson.id.includes("ultrasonic"))
-    chatContext = "ultrasonic-sensor";
-  else if (lesson.id.includes("dxl") || lesson.id.includes("dynamixel"))
-    chatContext = "dynamixel";
-  else if (
-    lesson.id.includes("ros2") ||
-    lesson.id.includes("rviz") ||
-    lesson.id.includes("urdf")
-  )
-    chatContext = "ros2";
+  if (lessonHasQuiz(lesson.id)) {
+    renderQuiz(lesson.id);
+    document.getElementById("submit-quiz-btn").onclick =
+      () => submitQuiz(lesson.id);
+  } else {
+    document.getElementById("complete-lesson-btn").onclick = () => {
+      markLessonComplete(lesson.id);
+      renderRoadmapNav();
+      checkHashForContent();
+    };
+  }
+}
 
-  initChatbot(chatContext);
+// ===============================
+// CORE HELPERS
+// ===============================
+function markLessonComplete(lessonId) {
+  updateState(state => {
+    const idx = LESSON_ORDER.indexOf(lessonId);
+    if (idx === -1) return;
+
+    if (!state.completedLessons.includes(lessonId)) {
+      state.completedLessons.push(lessonId);
+      state.xp += 25;
+      state.aura += 1;
+    }
+
+    state.unlockedIndex = Math.max(state.unlockedIndex, idx + 1);
+  });
 }
 
 function findLessonById(id) {
   for (const roadmap of Object.values(roboticsRoadmaps)) {
     for (const chapter of roadmap.chapters) {
       for (const lesson of chapter.subchapters) {
-        if (lesson.id === id) {
-          return lesson;
-        }
+        if (lesson.id === id) return lesson;
       }
     }
   }
@@ -285,100 +328,37 @@ function findLessonById(id) {
 }
 
 async function loadContent(file, lesson) {
-  try {
-    const res = await fetch(`/content/${file}`);
-    if (!res.ok) throw new Error("Content fetch failed");
-
-    const html = await res.text();
-    document.getElementById("content-area").innerHTML = html;
-
-    renderRightSidebar(lesson);
-  } catch (err) {
-    console.error(err);
-    document.getElementById("content-area").innerHTML =
-      "<p>Failed to load lesson content.</p>";
-  }
+  const res = await fetch(`/content/${file}`);
+  const html = await res.text();
+  document.getElementById("content-area").innerHTML = html;
+  renderRightSidebar(lesson);
 }
 
-
 // ===============================
-// HASH-BASED CONTENT LOADING
+// HASH ROUTING
 // ===============================
 function checkHashForContent() {
-  const id = window.location.hash.replace('#', '');
+  const id = window.location.hash.replace("#", "");
   if (!id) return;
 
   const lesson = findLessonById(id);
   if (!lesson) return;
 
+  if (!isLessonUnlocked(lesson.id)) {
+    document.getElementById("content-area").innerHTML =
+      "<p style='opacity:.6'>🔒 This lesson is locked.</p>";
+    return;
+  }
+
   loadContent(lesson.contentFile, lesson);
 }
-function enableRoadmapAccordion() {
-  const modules = document.querySelectorAll("[data-module]");
-
-  modules.forEach(module => {
-    const header = module.querySelector(".roadmap-module-header");
-
-    if (!header) return;
-
-    header.addEventListener("click", () => {
-      // close others
-      modules.forEach(m => {
-        if (m !== module) m.classList.remove("open");
-      });
-
-      // toggle current
-      module.classList.toggle("open");
-    });
-  });
-
-  // auto-open module containing active lesson
-  const activeLesson = document.querySelector(".roadmap-lessons li.active");
-  if (activeLesson) {
-    const parentModule = activeLesson.closest("[data-module]");
-    if (parentModule) parentModule.classList.add("open");
-  }
-}
-
-function enableMobileRoadmapDrawer() {
-  const toggle = document.getElementById("roadmap-toggle");
-  const roadmap = document.getElementById("roadmap-list");
-  const backdrop = document.getElementById("roadmap-backdrop");
-
-  if (!toggle || !roadmap || !backdrop) return;
-
-  const open = () => {
-    roadmap.classList.add("open");
-    backdrop.classList.add("show");
-  };
-
-  const close = () => {
-    roadmap.classList.remove("open");
-    backdrop.classList.remove("show");
-  };
-
-  toggle.addEventListener("click", open);
-  backdrop.addEventListener("click", close);
-
-  // close when clicking a lesson
-  roadmap.addEventListener("click", e => {
-    if (e.target.matches("li[data-lesson], a")) {
-      close();
-    }
-  });
-}
-
 
 // ===============================
-// BOOTSTRAP
+// BOOT
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   renderRoadmapNav();
-  enableRoadmapAccordion();
-  enableMobileRoadmapDrawer();
   checkHashForContent();
 });
 
-window.addEventListener("hashchange", () => {
-  checkHashForContent();
-});
+window.addEventListener("hashchange", checkHashForContent);
