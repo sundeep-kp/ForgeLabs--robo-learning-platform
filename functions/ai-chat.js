@@ -2,16 +2,25 @@
 // Cloudflare Pages Function — POST /ai-chat
 // Primary: Gemma 3
 // Fallback: Gemini 1.5 Flash / Pro
-console.log("AI function invoked", {
-  hasKey: Boolean(env.GOOGLE_API_KEY)
-});
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
   try {
+    // Method guard
     if (request.method !== "POST") {
       return new Response("Method Not Allowed", { status: 405 });
     }
 
+    // Env sanity check
+    if (!env || !env.GOOGLE_API_KEY) {
+      return json(
+        { error: "GOOGLE_API_KEY missing in Cloudflare Pages env" },
+        500
+      );
+    }
+
+    // Parse body
     let body;
     try {
       body = await request.json();
@@ -104,7 +113,6 @@ export async function onRequestPost({ request, env }) {
         }
 
         return reply;
-
       } finally {
         clearTimeout(timeout);
       }
@@ -116,7 +124,6 @@ export async function onRequestPost({ request, env }) {
     let reply;
 
     try {
-      // Try Gemma first
       reply = await callModel(PRIMARY_MODEL);
     } catch (err) {
       console.warn("Gemma failed, falling back:", err.message);
