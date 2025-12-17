@@ -1,17 +1,15 @@
 // functions/ai-chat.js
 // Cloudflare Pages Function — POST /ai-chat
-// Gemini Native API (stable, supported, sane)
+// Gemini Native API (stable)
 
 export async function onRequestPost(context) {
   const { request, env } = context;
 
   try {
-    // Method guard
     if (request.method !== "POST") {
       return new Response("Method Not Allowed", { status: 405 });
     }
 
-    // Env sanity check
     if (!env || !env.GOOGLE_API_KEY) {
       return json(
         { error: "GOOGLE_API_KEY missing in Cloudflare Pages env" },
@@ -19,7 +17,6 @@ export async function onRequestPost(context) {
       );
     }
 
-    // Parse request body
     let body;
     try {
       body = await request.json();
@@ -36,16 +33,16 @@ export async function onRequestPost(context) {
     }
 
     // ===============================
-    // CONFIG (Gemini Native)
+    // CONFIG (USE THE MODEL THAT EXISTS)
     // ===============================
-    const MODEL = "models/gemini-1.5-flash";
+    const MODEL = "models/gemini-pro";
     const API_URL =
       `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${env.GOOGLE_API_KEY}`;
 
     // ===============================
-    // PROMPT CONSTRUCTION
+    // PROMPT
     // ===============================
-    const trimmedHistory = history.slice(-6); // last 3 exchanges
+    const trimmedHistory = history.slice(-6);
 
     const contents = [
       {
@@ -70,19 +67,16 @@ export async function onRequestPost(context) {
     ];
 
     // ===============================
-    // REQUEST WITH TIMEOUT
+    // REQUEST
     // ===============================
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20_000);
+    const timeout = setTimeout(() => controller.abort(), 25_000);
 
-    let responseText;
-
+    let raw;
     try {
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents,
           generationConfig: {
@@ -93,36 +87,32 @@ export async function onRequestPost(context) {
         signal: controller.signal
       });
 
-      responseText = await res.text();
+      raw = await res.text();
 
       if (!res.ok) {
-        console.error("Gemini HTTP error:", responseText);
-        return json({ error: "Gemini API request failed" }, 500);
+        console.error("Gemini HTTP error:", raw);
+        return json({ error: "Gemini API error" }, 500);
       }
-
     } finally {
       clearTimeout(timeout);
     }
 
-    // ===============================
-    // RESPONSE PARSING
-    // ===============================
     let data;
     try {
-      data = JSON.parse(responseText);
+      data = JSON.parse(raw);
     } catch {
-      console.error("Non-JSON Gemini response:", responseText);
-      return json({ error: "Invalid response from Gemini" }, 500);
+      console.error("Invalid JSON from Gemini:", raw);
+      return json({ error: "Invalid Gemini response" }, 500);
     }
 
     const reply =
       data?.candidates?.[0]?.content?.parts
         ?.map(p => p.text)
-        ?.join("") || null;
+        ?.join("");
 
     if (!reply) {
-      console.error("Empty Gemini response:", data);
-      return json({ error: "Empty response from Gemini" }, 500);
+      console.error("Empty Gemini reply:", data);
+      return json({ error: "Empty Gemini reply" }, 500);
     }
 
     return json({ reply }, 200);
@@ -133,9 +123,6 @@ export async function onRequestPost(context) {
   }
 }
 
-// ===============================
-// HELPERS
-// ===============================
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
